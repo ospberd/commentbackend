@@ -18,33 +18,33 @@
   where {id} is the comment we want to reply to
   if not specified, a header comment will be added
 
-   You can set keys in Postman using the form-data Body tab
-		userName  
-		email
-		homePage
-		attFile          - attachment file
-		content
+   You can set keys in Postman using the form-data Body tab<br>
+		userName  <br>
+		email<br>
+		homePage<br>
+		attFile          - attachment file<br>
+		content<br>
 
 ## To receive messages from the server
 ## GET   localhost:3000/api/:id?/:count?/:page?/:orderby?/:direction?
 
    where
-   id  - id  of the message to which we want to receive answers
-         root - header comments
+   id  - id  of the message to which we want to receive answers<br>
+         root - header comments<br>
 
- count - count of messages to receive
+ count - count of messages to receive<br>
 
- page - page first page = 0
+ page - page first page = 0<br>
 
-orderby - field for sorting
-     userName, email, homePage, createdAt
+orderby - field for sorting<br>
+     userName, email, homePage, createdAt<br>
 
-direction -  sorting direction
-      ASC, DESC
+direction -  sorting direction<br>
+      ASC, DESC<br>
 
 
 ## to get attachment file
 ## GET   localhost:3000/api/download/:id
 
-id  - id  of the message to get attachment file
+id  - id  of the message to get attachment file<br>
 
