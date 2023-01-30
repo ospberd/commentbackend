@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
+const sharp = require('sharp');
+const fs = require('fs');
 
 const config = require("./config.js");
 const Comment = require( "./database.js");
-//const {removeBannedTags, chkHtmlTags} = require("./commentcleaner.js");
+
 const  {removeBannedTags} = require('./commentcleaner.js');
-//import {chkHtmlTags, removeBannedTags} from "./commentcleaner.js";
+
 // upload file path
 const FILE_PATH = 'uploads'
 
@@ -27,25 +29,41 @@ const upload = multer({
         cb(null, true)
     } else {
       cb(null, false);
-   //   console.log("========== Only .gif, .png, .jpg and .txt(<102400) format allowed! ==========")
-    //  return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
-    }}
+    //  return cb(new Error('Only .gif, .png, .jpg and .txt(<102400) format allowed!'));
+    }},
+    
 })
 
 // add other middleware
 
+// configure sharp resize
+resizeImg = async  (req, res, next) => {
+  
+  if ((!!req.file)&&(req.file.mimetype == "image/png" 
+      || req.file.mimetype == "image/jpg" 
+      || req.file.mimetype == "image/jpeg"
+      || req.file.mimetype == "image/gif" )) {
+
+        fs.renameSync(req.file.path, req.file.path+"temp");
+      
+        await sharp(req.file.path+"temp")
+            .resize(320, 320, { fit: 'inside', withoutEnlargement: true })
+            .toFile(req.file.path)
+        fs.unlinkSync(req.file.path+"temp");
+    }    
+    next()
+}
 
 // routes
 router.get('/download/:id?',  downloadfile); 
 router.get('/:id?/:count?/:page?/:orderby?/:direction?',  get); 
-router.post('/:id?', upload.single('attFile'), post);
-
+router.post('/:id?', upload.single('attFile'),resizeImg, post);
 
 module.exports = router;
 
 // route functions
-//маршрут для скачивания файла
 
+//маршрут для скачивания файла
 async function  downloadfile(req, res) {
     id = req.params.id 
     let loadComment = await Comment.findOne({where: {Id: id}  });
@@ -78,7 +96,7 @@ function get(req, res) {
 
 async function post(req, res) {
     // set default values
-    console.log(req);
+
     id = req.params.id || "root";
 
     parentcoment = await Comment.findOne({where: {Id: id} , attributes: ['Id'], });
@@ -129,31 +147,6 @@ async function post(req, res) {
               
               }
         }
-
-
-
-
-
-   // parentId = !!parentcoment ? parentcoment.Id:"root";
-   
-
-    
-
-
-/*
-    connection.query('SELECT * FROM comments WHERE ID=? ', [comment], function (err, results) { 
-        if (err)  {res.statusCode = 503; return res.send(err.message)}
-        else { res.json(results)  }
-}); 
-    
-
-    connection.query('SELECT * FROM comments WHERE ParentID=? ORDER BY ? ? LIMIT ? OFFSET ?',
-                [comment,orderby, direction, count, count*page  ], 
-        function (err, results) { 
-            if (err)  {res.statusCode = 503; return res.send(err.sqlMessage)}
-            else { res.json(results)  }
-    }); 
-*/
 
 }
 

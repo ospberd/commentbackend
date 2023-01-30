@@ -10,11 +10,12 @@ function chkHtmlTags(htmlString) {
                          '<code></code>',
                          '<i></i>',
                          '<strong></strong>'];
+    
 
     // get tag array
     let regtags = /(<(.|\n)*?>)/ig
     let tagarray = htmlString.match(regtags);
-
+    if (!tagarray) {return []}
      let theend = false; 
     while (!theend) {
         theend = true;
